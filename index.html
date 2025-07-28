@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anime Wave Login</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0; padding: 0; height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0f4a;
+    overflow: hidden;
+    color: white;
+  }
+
+  /* Canvas fills entire screen */
+  #waveCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+  }
+
+  /* Center login container */
+  .login-container {
+    position: relative;
+    z-index: 10;
+    width: 320px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px 40px;
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    backdrop-filter: blur(10px);
+  }
+
+  .login-container h2 {
+    margin: 0 0 20px 0;
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    color: #ffe6f0;
+    text-shadow: 0 0 8px #ff66b3;
+  }
+
+  /* Form styling */
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  input[type="email"],
+  input[type="password"] {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    transition: box-shadow 0.3s ease;
+  }
+
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    box-shadow: 0 0 8px #ff66b3;
+    background-color: #1a1f5a;
+    color: white;
+  }
+
+  button {
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: #ff66b3;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px #ff66b3aa;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background: #ff4d94;
+    box-shadow: 0 6px 20px #ff4d94cc;
+  }
+
+  /* Responsive for small screens */
+  @media (max-width: 400px) {
+    .login-container {
+      width: 90%;
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="waveCanvas"></canvas>
+
+<div class="login-container" role="main" aria-label="Login Form">
+  <h2>Login</h2>
+  <form>
+    <input type="email" placeholder="Email" required autocomplete="username" />
+    <input type="password" placeholder="Password" required autocomplete="current-password" />
+    <button type="submit">Sign In</button>
+  </form>
+</div>
+
+<script>
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const waveColors = [
+    'rgba(255, 123, 204, 0.5)',  // pinkish
+    'rgba(87, 203, 237, 0.4)',   // cyan
+    'rgba(255, 204, 0, 0.3)',    // yellow
+  ];
+
+  class Wave {
+    constructor(amplitude, wavelength, speed, color, offset) {
+      this.amplitude = amplitude;
+      this.wavelength = wavelength;
+      this.speed = speed;
+      this.color = color;
+      this.offset = offset;
+      this.time = 0;
+    }
+
+    draw(ctx, width, height) {
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+
+      for(let x = 0; x <= width; x++) {
+        let y = height / 2 + this.amplitude * Math.sin((x / this.wavelength) * 2 * Math.PI + this.time + this.offset);
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(width, height);
+      ctx.lineTo(0, height);
+      ctx.closePath();
+
+      let gradient = ctx.createLinearGradient(0, height/2 - this.amplitude, 0, height);
+      gradient.addColorStop(0, this.color);
+      gradient.addColorStop(1, 'transparent');
+
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      this.time += this.speed;
+    }
+  }
+
+  const waves = [
+    new Wave(40, 200, 0.05, waveColors[0], 0),
+    new Wave(30, 150, 0.04, waveColors[1], Math.PI / 2),
+    new Wave(20, 100, 0.03, waveColors[2], Math.PI),
+  ];
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    waves.forEach(wave => wave.draw(ctx, canvas.width, canvas.height));
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>
